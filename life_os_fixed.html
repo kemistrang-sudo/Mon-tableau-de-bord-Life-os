@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;1,9..144,300;1,9..144,500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<title>Life OS</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --sun:#F6E58D;--gold:#F9CA24;--white:#FFFFFF;--coral:#FF6F61;--plum:#6A5B8A;
+  --sun-soft:#FDF8DC;--coral-soft:#FFF0EE;--plum-soft:#F0EDF7;
+  --ink:#1C1828;--ink2:#4A4560;--ink3:#8B879E;--ink4:#C4C1D0;
+  --bg:#FAFAF8;--bg2:#F4F3EF;--bg3:#EEECEA;
+  --border:#E0DED8;--border2:#D0CDCA;
+  --r:14px;--r-sm:8px;--r-lg:20px;
+  font-family:'DM Sans',sans-serif;
+}
+body{background:var(--bg);color:var(--ink);min-height:100vh}
+#app{display:flex;min-height:100vh}
+#sb{width:230px;background:var(--plum);flex-shrink:0;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sb-top{padding:1.75rem 1.5rem 1.25rem}
+.sb-brand{font-family:'Fraunces',serif;font-size:1.35rem;font-weight:300;color:var(--sun);letter-spacing:-.01em;line-height:1.2}
+.sb-brand em{font-style:italic;color:#FDF8DC}
+.sb-tagline{font-size:.7rem;color:rgba(246,229,141,.4);letter-spacing:.1em;text-transform:uppercase;margin-top:.3rem}
+.sb-divider{height:1px;background:rgba(255,255,255,.1);margin:.75rem 0}
+.sb-label{font-size:.63rem;color:rgba(246,229,141,.4);padding:.5rem 1.5rem .25rem;letter-spacing:.12em;text-transform:uppercase}
+.sb-item{display:flex;align-items:center;gap:.75rem;padding:.6rem 1.5rem;cursor:pointer;transition:all .15s;font-size:.83rem;color:rgba(255,255,255,.6);border-right:3px solid transparent}
+.sb-item:hover{color:var(--sun);background:rgba(246,229,141,.08)}
+.sb-item.on{color:var(--sun);background:rgba(246,229,141,.12);border-right-color:var(--gold)}
+.sb-ic{font-size:.95rem;width:18px;text-align:center;flex-shrink:0}
+.sb-bottom{margin-top:auto;padding:1rem 1.5rem;border-top:1px solid rgba(255,255,255,.1)}
+.sb-date{font-size:.72rem;color:rgba(246,229,141,.35);text-align:center}
+#main{flex:1;overflow:auto}
+.pg-head{margin-bottom:2rem;padding-bottom:1.25rem;border-bottom:1px solid var(--border)}
+.pg-title{font-family:'Fraunces',serif;font-size:2.1rem;font-weight:300;color:var(--ink);line-height:1.2}
+.pg-title em{font-style:italic;color:var(--plum)}
+.pg-sub{font-size:.85rem;color:var(--ink3);margin-top:.4rem}
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--r-lg);padding:1.25rem 1.5rem;margin-bottom:1rem}
+.card-head{font-size:.68rem;color:var(--ink4);letter-spacing:.09em;text-transform:uppercase;margin-bottom:.9rem;font-weight:500}
+.card-accent{border-left:3px solid var(--coral)}
+.card-sun{border-left:3px solid var(--gold)}
+.card-plum{border-left:3px solid var(--plum)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;margin-bottom:1.25rem}
+.stat{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:1rem 1.1rem;position:relative;overflow:hidden}
+.stat::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.stat.s-gold::before{background:var(--gold)}.stat.s-coral::before{background:var(--coral)}.stat.s-plum::before{background:var(--plum)}
+.stat-label{font-size:.68rem;color:var(--ink3);letter-spacing:.07em;text-transform:uppercase;margin-bottom:.35rem}
+.stat-val{font-family:'Fraunces',serif;font-size:1.6rem;font-weight:300;color:var(--ink);line-height:1}
+.stat-val.c-gold{color:var(--gold)}.stat-val.c-coral{color:var(--coral)}.stat-val.c-plum{color:var(--plum)}
+.btn{display:inline-flex;align-items:center;gap:.45rem;padding:.55rem 1.1rem;border-radius:var(--r-sm);border:none;cursor:pointer;font-size:.82rem;font-family:'DM Sans',sans-serif;font-weight:500;transition:all .15s}
+.btn-sun{background:var(--gold);color:var(--ink)}.btn-sun:hover{background:var(--sun)}
+.btn-coral{background:var(--coral);color:#fff}.btn-coral:hover{filter:brightness(1.08)}
+.btn-plum{background:var(--plum);color:#fff}.btn-plum:hover{filter:brightness(1.1)}
+.btn-plum{background:var(--plum);color:#fff;border:none}.btn-plum:hover{filter:brightness(1.1)}
+.btn-del{background:transparent;color:var(--coral);border:1px solid transparent;font-size:.75rem;padding:.28rem .6rem;border-radius:6px;cursor:pointer;font-family:'DM Sans',sans-serif}
+.btn-del:hover{background:var(--coral-soft);border-color:var(--coral)}
+#toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--ink);color:#fff;padding:.65rem 1.25rem;border-radius:var(--r-sm);font-size:.82rem;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999;box-shadow:0 4px 16px rgba(28,24,40,.2)}
+#toast.show{opacity:1}
+#databar{background:var(--plum-soft);border-bottom:1px solid #d6d0e8;padding:.55rem 1.5rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+#databar-txt{font-size:.75rem;color:var(--plum)}
+.btn-import{background:var(--gold);color:var(--ink);border:none;border-radius:var(--r-sm);padding:.38rem .85rem;font-size:.75rem;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:.35rem}
+.btn-import:hover{background:var(--sun)}
+#toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--ink);color:#fff;padding:.65rem 1.2rem;border-radius:var(--r-sm);font-size:.82rem;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999}
+#toast.show{opacity:1}
+#databar{background:var(--plum-soft);border-bottom:1px solid #d6d0e8;padding:.55rem 2.25rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+#databar-txt{font-size:.75rem;color:var(--plum);font-weight:500}
+#databar-actions{display:flex;gap:.5rem;align-items:center}
+input,select,textarea{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-sm);color:var(--ink);padding:.58rem .9rem;font-size:.84rem;font-family:'DM Sans',sans-serif;width:100%;outline:none;transition:border .15s,background .15s}
+input:focus,select:focus,textarea:focus{border-color:var(--plum);background:var(--white)}
+textarea{resize:vertical;min-height:80px;line-height:1.6}
+label{font-size:.76rem;color:var(--ink2);display:block;margin-bottom:.32rem;font-weight:500}
+.row{display:grid;gap:.75rem;margin-bottom:.75rem}
+.c2{grid-template-columns:1fr 1fr}.c3{grid-template-columns:1fr 1fr 1fr}
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.82rem}
+th{color:var(--ink3);font-weight:500;text-align:left;padding:.6rem .8rem;border-bottom:2px solid var(--border);font-size:.7rem;letter-spacing:.07em;text-transform:uppercase}
+td{padding:.75rem .8rem;border-bottom:1px solid var(--bg3);color:var(--ink);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--sun-soft)}
+.tag{display:inline-block;padding:.18rem .55rem;border-radius:20px;font-size:.7rem;font-weight:500;white-space:nowrap}
+.tg-sun{background:var(--sun);color:#7a6200}.tg-coral{background:var(--coral-soft);color:#c24035;border:1px solid #fcd9d6}
+.tg-plum{background:var(--plum-soft);color:var(--plum);border:1px solid #d6d0e8}.tg-teal{background:#e1f5ee;color:#0f6e56;border:1px solid #a8dece}
+.tg-ink{background:var(--bg3);color:var(--ink2);border:1px solid var(--border)}
+.tl{padding-left:1.5rem;position:relative}
+.tl::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,var(--gold),var(--coral),var(--plum))}
+.tl-item{position:relative;margin-bottom:1.25rem;padding-left:1rem}
+.tl-dot{position:absolute;left:-1.575rem;top:.5rem;width:10px;height:10px;border-radius:50%;background:var(--white);border:2.5px solid var(--gold)}
+.tl-date{font-size:.7rem;color:var(--ink3);margin-bottom:.2rem;letter-spacing:.04em}
+.tl-title{font-size:.9rem;font-weight:500;color:var(--ink);margin-bottom:.15rem}
+.tl-note{font-size:.79rem;color:var(--ink2);font-style:italic;line-height:1.5}
+.mood-ring{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:1rem;font-weight:500;flex-shrink:0}
+.letter{background:var(--white);border:1px solid var(--border);border-radius:var(--r-lg);padding:1.5rem;margin-bottom:1rem;position:relative}
+.letter-seal{position:absolute;top:1rem;right:1rem;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.85rem}
+.letter-open{background:var(--sun);color:#7a6200}.letter-locked{background:var(--plum-soft);color:var(--plum)}
+.letter-body{font-family:'Fraunces',serif;font-weight:300;font-size:.92rem;line-height:1.85;color:var(--ink);white-space:pre-wrap;padding:1rem;background:var(--sun-soft);border-radius:var(--r-sm);border:1px solid #f0e4a0}
+.quote-box{background:var(--plum);border-radius:var(--r-lg);padding:1.5rem;margin-bottom:1rem;position:relative;overflow:hidden}
+.quote-box::before{content:'\201C';font-family:'Fraunces',serif;font-size:6rem;color:rgba(249,202,36,.12);position:absolute;top:-1rem;left:.5rem;line-height:1}
+.quote-text{font-family:'Fraunces',serif;font-size:1.05rem;font-weight:300;font-style:italic;color:#FDF8DC;line-height:1.65;position:relative}
+.quote-attr{font-size:.72rem;color:rgba(246,229,141,.4);margin-top:.6rem;position:relative}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;margin-bottom:1.25rem}
+.tile{background:var(--white);border:1px solid var(--border);border-radius:var(--r-lg);padding:1.2rem;cursor:pointer;transition:all .18s;position:relative;overflow:hidden}
+.tile:hover{transform:translateY(-2px);border-color:var(--plum);box-shadow:0 6px 20px rgba(106,91,138,.1)}
+.tile-ic{font-size:1.2rem;margin-bottom:.6rem}
+.tile-count{font-family:'Fraunces',serif;font-size:1.75rem;font-weight:300;line-height:1;margin-bottom:.2rem}
+.tile-count.c-gold{color:var(--gold)}.tile-count.c-coral{color:var(--coral)}.tile-count.c-plum{color:var(--plum)}
+.tile-name{font-size:.82rem;font-weight:500;color:var(--ink);margin-bottom:.15rem}
+.tile-desc{font-size:.72rem;color:var(--ink3)}
+.tile-bar{position:absolute;bottom:0;left:0;right:0;height:3px}
+.id-grid{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+.id-cell{background:var(--bg2);border-radius:var(--r);padding:.9rem 1rem;border:1px solid var(--border)}
+.id-cell-label{font-size:.67rem;color:var(--ink3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem}
+.id-cell-val{font-size:.88rem;color:var(--ink);font-style:italic;font-family:'Fraunces',serif;font-weight:300;line-height:1.4}
+.pbar{height:5px;background:var(--bg3);border-radius:3px;overflow:hidden;margin-top:.4rem}
+.pbar-fill{height:100%;border-radius:3px}
+.empty{text-align:center;padding:2.5rem 1rem;color:var(--ink4)}
+.empty-ic{font-size:2rem;margin-bottom:.75rem;opacity:.5}
+.empty-txt{font-size:.85rem}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+@media(max-width:620px){
+  #sb{width:54px}.sb-brand,.sb-tagline,.sb-label,.sb-item span,.sb-date{display:none}
+  .sb-item{justify-content:center;padding:.72rem}
+  #main{padding:1rem}.tiles{grid-template-columns:1fr 1fr}.stats{grid-template-columns:1fr 1fr}
+  .c2,.c3{grid-template-columns:1fr}.id-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div id="app">
+<nav id="sb">
+  <div class="sb-top">
+    <div class="sb-brand">Life <em>OS</em></div>
+    <div class="sb-tagline">Your private universe</div>
+  </div>
+  <div class="sb-divider"></div>
+  <div style="padding:.25rem 0">
+    <div class="sb-label">Overview</div>
+    <div class="sb-item on" data-p="home"><span class="sb-ic">◈</span><span>Dashboard</span></div>
+  </div>
+  <div style="padding:.25rem 0">
+    <div class="sb-label">Modules</div>
+    <div class="sb-item" data-p="finance"><span class="sb-ic">💰</span><span>Finance</span></div>
+    <div class="sb-item" data-p="relations"><span class="sb-ic">🤝</span><span>Relationships</span></div>
+    <div class="sb-item" data-p="timeline"><span class="sb-ic">📍</span><span>Timeline</span></div>
+    <div class="sb-item" data-p="checkins"><span class="sb-ic">🧠</span><span>Check-ins</span></div>
+    <div class="sb-item" data-p="identity"><span class="sb-ic">✨</span><span>Identity</span></div>
+    <div class="sb-item" data-p="letters"><span class="sb-ic">📩</span><span>Letters</span></div>
+  </div>
+  <div style="padding:.25rem 0">
+    <div class="sb-label">System</div>
+    <div class="sb-item" data-p="settings"><span class="sb-ic">⚙</span><span>Data &amp; backup</span></div>
+  </div>
+  <div class="sb-bottom"><div class="sb-date" id="sb-date"></div></div>
+</nav>
+<div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+<div id="databar">
+  <div id="databar-txt">💾 Data saved locally in your browser. Export regularly to keep a safe backup.</div>
+  <div style="display:flex;gap:.5rem;align-items:center;flex-shrink:0">
+    <button class="btn btn-plum" style="font-size:.75rem;padding:.38rem .9rem" onclick="exportData()">⬇ Export JSON</button>
+    <label class="btn-import" for="imp-file">⬆ Import JSON</label>
+    <input type="file" id="imp-file" accept=".json" style="display:none" onchange="importData(event)">
+  </div>
+</div>
+<main id="main" style="flex:1;overflow:auto;padding:2rem 2.25rem"></main>
+</div>
+</div>
+<div id="toast"></div>
+<script>
+const $=id=>document.getElementById(id);
+const now=new Date();
+document.getElementById('sb-date').textContent=now.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+const mem={};
+async function get(k){try{const v=localStorage.getItem(k);return v?JSON.parse(v):null}catch{return mem[k]||null}}
+async function set(k,v){mem[k]=v;try{localStorage.setItem(k,JSON.stringify(v))}catch{}}
+const D={page:'home',finance:{records:[],memories:{first:'',worst:'',smartest:''}},relations:{people:[]},timeline:{events:[]},checkins:{entries:[]},identity:{aesthetic:'',music:'',hobbies:'',tech:'',inspirations:''},letters:{list:[]}};
+async function boot(){for(const k of['finance','relations','timeline','checkins','identity','letters']){const d=await get('livos_'+k);if(d)D[k]=d;}render();}
+async function save(k){await set('livos_'+k,D[k]);}
+const fmtMoney=n=>Number(n||0).toLocaleString()+' FCFA';
+const fmtDate=s=>{const d=new Date(s+'T00:00:00');return d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});};
+const fmtMonth=s=>{const d=new Date(s+'T00:00:00');return d.toLocaleDateString('en-US',{month:'long',year:'numeric'});};
+const moodColor=n=>['','#E24B4A','#E24B4A','#FF6F61','#F9CA24','#F9CA24','#6AABD6','#6AABD6','#4DB8A0','#4DB8A0','#1D9E75'][Math.min(10,Math.max(1,n))];
+const quotes=[{t:"The two most important days in your life are the day you were born and the day you find out why.",a:"Mark Twain"},{t:"You are the author of your own story. Write something worth reading.",a:"Life OS"},{t:"Small steps every day. That is what a life is made of.",a:"Life OS"},{t:"Don't count the days. Make the days count.",a:"Muhammad Ali"}];
+const todayQ=quotes[now.getDate()%quotes.length];
+function nav(p){D.page=p;document.querySelectorAll('.sb-item').forEach(el=>el.classList.toggle('on',el.dataset.p===p));render();}
+window.nav=nav;
+function pgHome(){
+  const F=D.finance,R=D.relations,T=D.timeline,C=D.checkins,L=D.letters;
+  const totInc=F.records.reduce((a,x)=>a+(+x.income||0),0);
+  const totExp=F.records.reduce((a,x)=>a+(+x.expenses||0),0);
+  const lastMood=C.entries.length?C.entries[C.entries.length-1].mood:null;
+  const nextLetter=L.list.filter(l=>new Date(l.openDate)>now).sort((a,b)=>new Date(a.openDate)-new Date(b.openDate))[0];
+  const tiles=[
+    {p:'finance',ic:'💰',count:F.records.length,unit:'records',name:'Finance tracker',desc:'Income & expenses',cc:'c-gold',bar:'background:var(--gold)'},
+    {p:'relations',ic:'🤝',count:R.people.length,unit:'people',name:'Relationships',desc:'Your circle',cc:'c-plum',bar:'background:var(--plum)'},
+    {p:'timeline',ic:'📍',count:T.events.length,unit:'events',name:'Life timeline',desc:'Your story',cc:'c-coral',bar:'background:var(--coral)'},
+    {p:'checkins',ic:'🧠',count:C.entries.length,unit:'entries',name:'Check-ins',desc:'Mental health log',cc:'c-gold',bar:'background:var(--gold)'},
+    {p:'identity',ic:'✨',count:'✦',unit:'',name:'Identity',desc:'Who you are now',cc:'c-plum',bar:'background:var(--plum)'},
+    {p:'letters',ic:'📩',count:L.list.length,unit:'letters',name:'Future letters',desc:'Sealed messages',cc:'c-coral',bar:'background:var(--coral)'},
+  ];
+  return `
+  <div class="pg-head"><div class="pg-title">Welcome back, <em>explorer.</em></div><div class="pg-sub">Every day is a data point. Every moment, a chapter. This is your life in full.</div></div>
+  <div class="quote-box"><div class="quote-text">${todayQ.t}</div><div class="quote-attr">— ${todayQ.a}</div></div>
+  <div class="stats">
+    <div class="stat s-gold"><div class="stat-label">Total income</div><div class="stat-val c-gold">${totInc?fmtMoney(totInc):'—'}</div></div>
+    <div class="stat s-coral"><div class="stat-label">Total expenses</div><div class="stat-val c-coral">${totExp?fmtMoney(totExp):'—'}</div></div>
+    <div class="stat s-plum"><div class="stat-label">Last mood</div><div class="stat-val c-plum">${lastMood?lastMood+'/10':'—'}</div></div>
+  </div>
+  <div class="tiles">${tiles.map(t=>`<div class="tile" onclick="nav('${t.p}')"><div class="tile-ic">${t.ic}</div><div class="tile-count ${t.cc}">${t.count}</div><div style="font-size:.65rem;color:var(--ink4);margin-bottom:.35rem">${t.unit}</div><div class="tile-name">${t.name}</div><div class="tile-desc">${t.desc}</div><div class="tile-bar" style="${t.bar}"></div></div>`).join('')}</div>
+  ${T.events.length?`<div class="card card-sun"><div class="card-head">Recent milestones</div><div class="tl">${[...T.events].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,3).map(e=>`<div class="tl-item"><div class="tl-dot"></div><div class="tl-date">${fmtDate(e.date)} &nbsp;<span class="tag tg-plum">${e.category}</span></div><div class="tl-title">${e.title}</div>${e.note?`<div class="tl-note">${e.note}</div>`:''}</div>`).join('')}</div></div>`:''}
+  ${nextLetter?`<div class="card card-plum" style="background:var(--plum-soft)"><div class="card-head">Next letter unlocks</div><div style="display:flex;align-items:center;justify-content:space-between"><div><div style="font-family:'Fraunces',serif;font-size:1.1rem;font-weight:300;color:var(--plum)">${fmtDate(nextLetter.openDate)}</div><div style="font-size:.8rem;color:var(--ink3);margin-top:.2rem">${nextLetter.occasion||'A letter to your future self'}</div></div><div class="tag tg-plum">🔒 sealed</div></div></div>`:''}`;
+}
+function pgFinance(){
+  const F=D.finance;
+  const recs=[...F.records].sort((a,b)=>new Date(b.month)-new Date(a.month));
+  const totInc=recs.reduce((a,x)=>a+(+x.income||0),0);
+  const totExp=recs.reduce((a,x)=>a+(+x.expenses||0),0);
+  const totSav=recs.reduce((a,x)=>a+(+x.savings||0),0);
+  const catC={Job:'tg-teal',Freelance:'tg-plum','Side hustle':'tg-coral',Gift:'tg-sun',Other:'tg-ink'};
+  return `
+  <div class="pg-head"><div class="pg-title">Financial <em>Tracker</em></div><div class="pg-sub">Watch your financial independence grow, one month at a time.</div></div>
+  <div class="stats"><div class="stat s-gold"><div class="stat-label">Total income</div><div class="stat-val c-gold">${fmtMoney(totInc)}</div></div><div class="stat s-coral"><div class="stat-label">Total expenses</div><div class="stat-val c-coral">${fmtMoney(totExp)}</div></div><div class="stat s-plum"><div class="stat-label">Net savings</div><div class="stat-val c-plum">${fmtMoney(totSav)}</div></div></div>
+  <div class="card">
+    <div class="card-head">Add a monthly record</div>
+    <div class="row c2"><div><label>Month</label><input type="month" id="fi-m" max="${now.toISOString().slice(0,7)}"></div><div><label>Source</label><select id="fi-cat"><option>Job</option><option>Freelance</option><option>Side hustle</option><option>Gift</option><option>Other</option></select></div></div>
+    <div class="row c3"><div><label>Income (FCFA)</label><input type="number" id="fi-i" placeholder="0" min="0"></div><div><label>Expenses (FCFA)</label><input type="number" id="fi-e" placeholder="0" min="0"></div><div><label>Savings (FCFA)</label><input type="number" id="fi-s" placeholder="0" min="0"></div></div>
+    <div class="row"><div><label>Note</label><input type="text" id="fi-n" placeholder="e.g. First salary ever!"></div></div>
+    <button class="btn btn-sun" onclick="addFin()">+ Add record</button>
+  </div>
+  ${recs.length?`<div class="card"><div class="card-head">Monthly snapshots</div><div class="tbl-wrap"><table><thead><tr><th>Month</th><th>Source</th><th>Income</th><th>Expenses</th><th>Savings</th><th>Note</th><th></th></tr></thead><tbody>${recs.map(r=>`<tr><td style="font-weight:500;white-space:nowrap">${fmtMonth(r.month)}</td><td><span class="tag ${catC[r.category]||'tg-ink'}">${r.category}</span></td><td style="color:#0f6e56;font-weight:500">${r.income?fmtMoney(r.income):'—'}</td><td style="color:var(--coral)">${r.expenses?fmtMoney(r.expenses):'—'}</td><td style="color:var(--plum)">${r.savings?fmtMoney(r.savings):'—'}</td><td style="color:var(--ink3);font-style:italic;font-size:.79rem">${r.note||''}</td><td><button class="btn-del" onclick="delFin(${F.records.indexOf(r)})">✕</button></td></tr>`).join('')}</tbody></table></div></div>`:`<div class="empty"><div class="empty-ic">💰</div><div class="empty-txt">No records yet.</div></div>`}
+  <div class="card card-accent">
+    <div class="card-head">Financial memories</div>
+    <div class="row"><div><label>🎉 First salary — the moment it arrived</label><input type="text" id="m-first" value="${F.memories.first||''}" placeholder="Describe the feeling..." onblur="saveMem('first',this.value)"></div></div>
+    <div class="row"><div><label>😬 Worst financial decision</label><input type="text" id="m-worst" value="${F.memories.worst||''}" placeholder="The lesson that stung most..." onblur="saveMem('worst',this.value)"></div></div>
+    <div class="row"><div><label>🧠 Smartest move you've ever made</label><input type="text" id="m-smart" value="${F.memories.smartest||''}" placeholder="Your proudest financial moment..." onblur="saveMem('smartest',this.value)"></div></div>
+  </div>`;
+}
+function pgRelations(){
+  const P=D.relations.people;
+  const eC={Positive:'tg-teal',Supportive:'tg-teal',Neutral:'tg-ink',Draining:'tg-coral'};
+  const tC={Friend:'tg-plum',Family:'tg-sun',Partner:'tg-coral',Mentor:'tg-teal',Colleague:'tg-ink'};
+  const bg=i=>['#F6E58D','#FF6F61','#6A5B8A','#4DB8A0','#F9CA24','#6AABD6'][i%6];
+  const fg=i=>['#7a6200','#fff','#fff','#fff','#7a6200','#fff'][i%6];
+  return `
+  <div class="pg-head"><div class="pg-title">Relationship <em>Tracker</em></div><div class="pg-sub">A reflection tool — notice what grows, what fades, and what drains you.</div></div>
+  <div class="card">
+    <div class="card-head">Add someone to your circle</div>
+    <div class="row c2"><div><label>Name or initial</label><input type="text" id="r-name" placeholder="e.g. Marie or A."></div><div><label>Type</label><select id="r-type"><option>Friend</option><option>Family</option><option>Partner</option><option>Mentor</option><option>Colleague</option></select></div></div>
+    <div class="row c2"><div><label>Energy they bring</label><select id="r-energy"><option>Positive</option><option>Supportive</option><option>Neutral</option><option>Draining</option></select></div><div><label>How often you connect</label><select id="r-freq"><option>Daily</option><option>Weekly</option><option>Monthly</option><option>Rarely</option></select></div></div>
+    <div class="row"><div><label>Last meaningful moment</label><input type="text" id="r-moment" placeholder="e.g. Long conversation about the future..."></div></div>
+    <button class="btn btn-sun" onclick="addRel()">+ Add person</button>
+  </div>
+  ${P.length?`<div class="card"><div class="card-head">Your circle — ${P.length} ${P.length===1?'person':'people'}</div>${P.map((p,i)=>`<div style="display:flex;align-items:flex-start;gap:1rem;padding:1rem 0;border-bottom:1px solid var(--bg3);${i===P.length-1?'border-bottom:none':''}"><div style="width:44px;height:44px;border-radius:50%;background:${bg(i)};color:${fg(i)};display:flex;align-items:center;justify-content:center;font-weight:500;font-size:.85rem;flex-shrink:0">${p.name.trim().slice(0,2).toUpperCase()}</div><div style="flex:1;min-width:0"><div style="display:flex;flex-wrap:wrap;align-items:center;gap:.4rem;margin-bottom:.35rem"><span style="font-weight:500;font-size:.92rem">${p.name}</span><span class="tag ${tC[p.type]||'tg-ink'}">${p.type}</span><span class="tag ${eC[p.energy]||'tg-ink'}">${p.energy}</span><span style="font-size:.7rem;color:var(--ink3)">${p.freq}</span></div><div style="font-size:.8rem;color:var(--ink2);font-style:italic">${p.moment||'No moment logged.'}</div></div><button class="btn-del" onclick="delRel(${i})">✕</button></div>`).join('')}</div>`:`<div class="empty"><div class="empty-ic">🤝</div><div class="empty-txt">No one logged yet. Start with the 5 people closest to you.</div></div>`}`;
+}
+function pgTimeline(){
+  const T=D.timeline.events;
+  const sorted=[...T].sort((a,b)=>new Date(b.date)-new Date(a.date));
+  const catC={Personal:'tg-plum',Career:'tg-sun',Travel:'tg-teal',Relationships:'tg-coral',Health:'tg-teal',Education:'tg-ink'};
+  const dotC={Personal:'var(--plum)',Career:'var(--gold)',Travel:'#1D9E75',Relationships:'var(--coral)',Health:'#1D9E75',Education:'var(--ink2)'};
+  return `
+  <div class="pg-head"><div class="pg-title">Life <em>Timeline</em></div><div class="pg-sub">See your life as a story unfolding. You are the protagonist.</div></div>
+  <div class="card">
+    <div class="card-head">Log a major event</div>
+    <div class="row c2"><div><label>Date</label><input type="date" id="tl-d" max="${now.toISOString().slice(0,10)}"></div><div><label>Category</label><select id="tl-c"><option>Personal</option><option>Career</option><option>Travel</option><option>Relationships</option><option>Health</option><option>Education</option></select></div></div>
+    <div class="row"><div><label>What happened?</label><input type="text" id="tl-t" placeholder="e.g. Received my first job offer, Moved to a new city..."></div></div>
+    <div class="row"><div><label>Your reflection (optional)</label><textarea id="tl-n" placeholder="How did this moment feel? What did it open or close?" style="min-height:65px"></textarea></div></div>
+    <button class="btn btn-sun" onclick="addEvent()">+ Add event</button>
+  </div>
+  ${sorted.length?`<div class="card"><div class="card-head">Your story — ${sorted.length} ${sorted.length===1?'event':'events'}</div><div class="tl">${sorted.map(e=>`<div class="tl-item"><div class="tl-dot" style="border-color:${dotC[e.category]||'var(--gold)'}"></div><div class="tl-date">${fmtDate(e.date)} &nbsp;<span class="tag ${catC[e.category]||'tg-ink'}">${e.category}</span></div><div class="tl-title">${e.title}</div>${e.note?`<div class="tl-note">${e.note}</div>`:''}<button class="btn-del" style="margin-top:.35rem" onclick="delEvent(${T.indexOf(e)})">remove</button></div>`).join('')}</div></div>`:`<div class="empty"><div class="empty-ic">📍</div><div class="empty-txt">No events yet. Log the first moment that changed you.</div></div>`}`;
+}
+function pgCheckins(){
+  const C=D.checkins.entries;
+  const sorted=[...C].sort((a,b)=>new Date(b.date)-new Date(a.date));
+  return `
+  <div class="pg-head"><div class="pg-title">Emotional <em>Check-ins</em></div><div class="pg-sub">Monthly snapshots of your inner world — watch your mindset evolve.</div></div>
+  <div class="card">
+    <div class="card-head">New monthly check-in</div>
+    <div class="row c2"><div><label>Month</label><input type="month" id="ci-d" max="${now.toISOString().slice(0,7)}"></div><div><label>Overall mood — <span id="mood-disp" style="color:var(--plum);font-weight:500">5 / 10</span></label><input type="range" min="1" max="10" value="5" step="1" id="ci-m" oninput="document.getElementById('mood-disp').textContent=this.value+' / 10'" style="margin-top:.4rem"></div></div>
+    <div class="row"><div><label>Biggest challenge this month</label><textarea id="ci-ch" placeholder="What tested you most?"></textarea></div></div>
+    <div class="row c2"><div><label>Something you learned</label><textarea id="ci-l" placeholder="A lesson, insight, or revelation..." style="min-height:70px"></textarea></div><div><label>Something you're proud of</label><textarea id="ci-p" placeholder="Even the smallest win counts..." style="min-height:70px"></textarea></div></div>
+    <button class="btn btn-sun" onclick="addCheckin()">+ Save check-in</button>
+  </div>
+  ${sorted.length?sorted.map(e=>`<div class="card" style="border-left:3px solid ${moodColor(e.mood)}"><div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem"><div class="mood-ring" style="background:${moodColor(e.mood)}20;color:${moodColor(e.mood)};border:2px solid ${moodColor(e.mood)}50">${e.mood}</div><div style="flex:1"><div style="font-weight:500;font-size:.92rem">${fmtMonth(e.date)}</div><div style="font-size:.72rem;color:var(--ink3)">Mood score ${e.mood}/10</div><div class="pbar" style="width:120px"><div class="pbar-fill" style="width:${e.mood*10}%;background:${moodColor(e.mood)}"></div></div></div><button class="btn-del" onclick="delCheckin(${C.indexOf(e)})">✕</button></div>${e.challenge?`<div style="margin-bottom:.7rem"><div style="font-size:.67rem;color:var(--ink3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.25rem">Challenge</div><div style="font-size:.85rem;color:var(--ink);line-height:1.5">${e.challenge}</div></div>`:''}<div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">${e.learned?`<div><div style="font-size:.67rem;color:#0f6e56;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.25rem">Learned</div><div style="font-size:.83rem;color:var(--ink);line-height:1.5">${e.learned}</div></div>`:''} ${e.proud?`<div><div style="font-size:.67rem;color:var(--plum);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.25rem">Proud of</div><div style="font-size:.83rem;color:var(--ink);line-height:1.5">${e.proud}</div></div>`:''}</div></div>`).join(''):`<div class="empty"><div class="empty-ic">🧠</div><div class="empty-txt">No check-ins yet. How are you doing this month?</div></div>`}`;
+}
+function pgIdentity(){
+  const ID=D.identity;
+  const fields=[{k:'aesthetic',label:'Aesthetic & visual style',placeholder:'Y2K, Dark academia, Quiet luxury, Afrofuturism...'},{k:'music',label:'Music taste right now',placeholder:'Afrobeats, Neo-soul, Drill, Lo-fi hip hop...'},{k:'hobbies',label:'Hobbies & obsessions',placeholder:'Building apps, Photography, Football, Journaling...'},{k:'tech',label:'Technologies you are learning',placeholder:'React, Python, Figma, AI tools, 3D modeling...'},{k:'inspirations',label:'People & things that inspire you',placeholder:'Thinkers, creators, places, movements...'}];
+  const hasData=Object.values(ID).some(v=>v);
+  return `
+  <div class="pg-head"><div class="pg-title">Identity & <em>Style</em></div><div class="pg-sub">A snapshot of who you are right now. Your future self will smile reading this.</div></div>
+  <div class="card card-plum">
+    <div class="card-head">Your identity — ${now.getFullYear()} snapshot</div>
+    ${fields.map(f=>`<div class="row"><div><label>${f.label}</label><input type="text" value="${ID[f.k]||''}" placeholder="${f.placeholder}" onblur="saveId('${f.k}',this.value)"></div></div>`).join('')}
+    <div style="margin-top:.6rem;padding:.85rem 1rem;background:var(--plum-soft);border-radius:var(--r-sm);border:1px dashed #c5b8e0"><div style="font-size:.72rem;color:var(--plum);font-weight:500;margin-bottom:.2rem">✦ Auto-saved as you type</div><div style="font-size:.79rem;color:var(--ink2)">This captures who you are at this exact moment. Culture, taste, and identity evolve — this is proof.</div></div>
+  </div>
+  ${hasData?`<div class="card"><div class="card-head">At a glance — right now</div><div class="id-grid">${fields.filter(f=>ID[f.k]).map(f=>`<div class="id-cell"><div class="id-cell-label">${f.label}</div><div class="id-cell-val">${ID[f.k]}</div></div>`).join('')}</div></div>`:''}`;
+}
+function pgLetters(){
+  const L=D.letters.list;
+  const sorted=[...L].sort((a,b)=>new Date(a.openDate)-new Date(b.openDate));
+  const minDate=new Date(Date.now()+86400000).toISOString().slice(0,10);
+  return `
+  <div class="pg-head"><div class="pg-title">Letters to <em>Future You</em></div><div class="pg-sub">Seal your thoughts. Your future self is waiting — and worthy of this gift.</div></div>
+  <div class="card">
+    <div class="card-head">Write a new letter</div>
+    <div class="row c2"><div><label>Unlock date</label><input type="date" id="lt-d" min="${minDate}"></div><div><label>Occasion</label><select id="lt-oc"><option>1 year from now</option><option>5 years from now</option><option>10 years from now</option><option>A birthday</option><option>A milestone</option><option>Custom</option></select></div></div>
+    <div class="row"><div><label>Your letter</label><textarea id="lt-b" style="min-height:160px;font-family:'Fraunces',serif;font-size:.92rem;line-height:1.75" placeholder="Dear future me,
+
+Right now I am...
+
+I hope by the time you read this..."></textarea></div></div>
+    <button class="btn btn-coral" onclick="addLetter()">✉ Seal this letter</button>
+  </div>
+  ${sorted.length?sorted.map(l=>{const open=new Date(l.openDate);const locked=open>now;const days=Math.ceil((open-now)/86400000);return `<div class="letter"><div class="letter-seal ${locked?'letter-locked':'letter-open'}">${locked?'🔒':'📬'}</div><div style="margin-bottom:.85rem"><div style="font-size:.68rem;color:var(--ink3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.2rem">Open on</div><div style="font-family:'Fraunces',serif;font-size:1.05rem;font-weight:300;color:${locked?'var(--plum)':'var(--coral)'}">${fmtDate(l.openDate)}</div><div style="font-size:.75rem;color:var(--ink3);margin-top:.15rem">${l.occasion||''} ${locked?'· '+days+' days remaining':'· Ready to read'}</div></div>${!locked?`<div class="letter-body">${l.body}</div>`:`<div style="padding:.9rem;background:var(--plum-soft);border-radius:var(--r-sm);font-size:.83rem;color:var(--plum);font-style:italic;border:1px solid #d6d0e8">This letter is sealed until ${fmtDate(l.openDate)}.</div>`}<div style="margin-top:.85rem"><button class="btn-del" onclick="delLetter(${L.indexOf(l)})">remove letter</button></div></div>`;}).join(''):`<div class="empty"><div class="empty-ic">📩</div><div class="empty-txt">No letters yet. Write to the person you will become.</div></div>`}`;
+}
+window.addFin=async()=>{const m=$('fi-m').value;if(!m){alert('Please select a month');return}D.finance.records.push({month:m,category:$('fi-cat').value,income:+$('fi-i').value,expenses:+$('fi-e').value,savings:+$('fi-s').value,note:$('fi-n').value});await save('finance');render();};
+window.delFin=async i=>{D.finance.records.splice(i,1);await save('finance');render()};
+window.saveMem=async(k,v)=>{D.finance.memories[k]=v;await save('finance')};
+window.addRel=async()=>{const n=$('r-name').value.trim();if(!n){alert('Please enter a name');return}D.relations.people.push({name:n,type:$('r-type').value,energy:$('r-energy').value,freq:$('r-freq').value,moment:$('r-moment').value});await save('relations');render();};
+window.delRel=async i=>{D.relations.people.splice(i,1);await save('relations');render()};
+window.addEvent=async()=>{const d=$('tl-d').value,t=$('tl-t').value.trim();if(!d||!t){alert('Date and event required');return}D.timeline.events.push({date:d,title:t,note:$('tl-n').value,category:$('tl-c').value});await save('timeline');render();};
+window.delEvent=async i=>{D.timeline.events.splice(i,1);await save('timeline');render()};
+window.addCheckin=async()=>{const d=$('ci-d').value;if(!d){alert('Please select a month');return}D.checkins.entries.push({date:d,mood:+$('ci-m').value,challenge:$('ci-ch').value,learned:$('ci-l').value,proud:$('ci-p').value});await save('checkins');render();};
+window.delCheckin=async i=>{D.checkins.entries.splice(i,1);await save('checkins');render()};
+window.saveId=async(k,v)=>{D.identity[k]=v;await save('identity')};
+window.addLetter=async()=>{const d=$('lt-d').value,b=$('lt-b').value.trim();if(!d||!b){alert('Please set an unlock date and write your letter');return}D.letters.list.push({openDate:d,body:b,occasion:$('lt-oc').value,created:now.toISOString().slice(0,10)});await save('letters');render();};
+window.delLetter=async i=>{D.letters.list.splice(i,1);await save('letters');render()};
+function toast(msg,err=false){const t=document.getElementById('toast');t.textContent=msg;t.style.background=err?'var(--coral)':'var(--ink)';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3200);}
+window.exportData=()=>{
+  const payload={version:1,exported:new Date().toISOString(),finance:D.finance,relations:D.relations,timeline:D.timeline,checkins:D.checkins,identity:D.identity,letters:D.letters};
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  const dateStr=new Date().toISOString().slice(0,10);
+  a.download='lifeos-backup-'+dateStr+'.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('✓ Backup downloaded!');
+};
+window.importData=async(e)=>{
+  const file=e.target.files[0];
+  if(!file)return;
+  try{
+    const text=await file.text();
+    const parsed=JSON.parse(text);
+    if(!parsed.finance||!parsed.relations){throw new Error('Invalid file');}
+    if(!confirm('Import this backup? Your current data will be replaced.'))return;
+    D.finance=parsed.finance;D.relations=parsed.relations;D.timeline=parsed.timeline;
+    D.checkins=parsed.checkins;D.identity=parsed.identity;D.letters=parsed.letters;
+    for(const k of['finance','relations','timeline','checkins','identity','letters'])await save(k);
+    e.target.value='';
+    render();
+    toast('✓ Data imported successfully!');
+  }catch(err){toast('✗ Invalid backup file. Please use a Life OS export.',true);}
+};
+function pgSettings(){
+  const totalRecords=[...D.finance.records,...D.relations.people,...D.timeline.events,...D.checkins.entries,...D.letters.list].length;
+  const hasIdentity=Object.values(D.identity).some(v=>v);
+  const lastExportKey='livos_lastexport';
+  const lastExp=localStorage.getItem(lastExportKey);
+  const sizeBytes=JSON.stringify({finance:D.finance,relations:D.relations,timeline:D.timeline,checkins:D.checkins,identity:D.identity,letters:D.letters}).length;
+  const sizeKb=(sizeBytes/1024).toFixed(1);
+  return `
+  <div class="pg-head"><div class="pg-title">Data & <em>Backup</em></div><div class="pg-sub">Your data belongs to you. Export it, back it up, move it anywhere.</div></div>
+
+  <div class="card card-sun">
+    <div class="card-head">Your data snapshot</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;margin-bottom:1rem">
+      <div style="background:var(--bg2);border-radius:var(--r);padding:.9rem 1rem;border:1px solid var(--border)">
+        <div style="font-size:.68rem;color:var(--ink3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.35rem">Total entries</div>
+        <div style="font-family:'Fraunces',serif;font-size:1.6rem;font-weight:300;color:var(--gold)">${totalRecords}</div>
+      </div>
+      <div style="background:var(--bg2);border-radius:var(--r);padding:.9rem 1rem;border:1px solid var(--border)">
+        <div style="font-size:.68rem;color:var(--ink3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.35rem">Data size</div>
+        <div style="font-family:'Fraunces',serif;font-size:1.6rem;font-weight:300;color:var(--plum)">${sizeKb} KB</div>
+      </div>
+      <div style="background:var(--bg2);border-radius:var(--r);padding:.9rem 1rem;border:1px solid var(--border)">
+        <div style="font-size:.68rem;color:var(--ink3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.35rem">Storage</div>
+        <div style="font-family:'Fraunces',serif;font-size:1.6rem;font-weight:300;color:var(--coral)">Local</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;font-size:.8rem">
+      ${[
+        {label:'Finance records',count:D.finance.records.length},
+        {label:'Relationships',count:D.relations.people.length},
+        {label:'Timeline events',count:D.timeline.events.length},
+        {label:'Check-ins',count:D.checkins.entries.length},
+        {label:'Identity filled',count:hasIdentity?'Yes':'No'},
+        {label:'Letters',count:D.letters.list.length},
+      ].map(item=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:.5rem .7rem;background:var(--bg3);border-radius:6px"><span style="color:var(--ink2)">${item.label}</span><span style="font-weight:500;color:var(--ink)">${item.count}</span></div>`).join('')}
+    </div>
+  </div>
+
+  <div class="card card-plum">
+    <div class="card-head">Export your data</div>
+    <p style="font-size:.85rem;color:var(--ink2);line-height:1.65;margin-bottom:1rem">Export everything as a <strong>.json</strong> file saved to your computer. This file contains all your entries across every module. Keep it somewhere safe — Google Drive, iCloud, a USB drive, anywhere you trust.</p>
+    <div style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap">
+      <button class="btn btn-plum" onclick="exportData();localStorage.setItem('livos_lastexport',new Date().toISOString());render()">⬇ Download backup (.json)</button>
+      ${lastExp?`<span style="font-size:.75rem;color:var(--ink3)">Last exported: ${new Date(lastExp).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}</span>`:`<span style="font-size:.75rem;color:var(--coral)">Never exported — do it now!</span>`}
+    </div>
+  </div>
+
+  <div class="card card-accent">
+    <div class="card-head">Import a backup</div>
+    <p style="font-size:.85rem;color:var(--ink2);line-height:1.65;margin-bottom:1rem">Moving to a new browser, new computer, or just restoring from a backup? Import your <strong>.json</strong> file and everything will be restored instantly. <strong style="color:var(--coral)">This will replace your current data.</strong></p>
+    <label class="btn btn-sun" style="cursor:pointer;display:inline-flex;align-items:center;gap:.45rem" for="imp-file2">⬆ Choose backup file to import</label>
+    <input type="file" id="imp-file2" accept=".json" style="display:none" onchange="importData(event)">
+  </div>
+
+  <div class="card">
+    <div class="card-head">Danger zone</div>
+    <p style="font-size:.85rem;color:var(--ink2);line-height:1.65;margin-bottom:1rem">Permanently delete all your Life OS data from this browser. This cannot be undone. Export first if you want to keep anything.</p>
+    <button class="btn" style="background:var(--coral-soft);color:var(--coral);border:1px solid #fcd9d6" onclick="nukeData()">✕ Erase all my data</button>
+  </div>
+
+  <div style="padding:1rem 0;font-size:.78rem;color:var(--ink4);line-height:1.7">
+    <strong style="color:var(--ink3)">How your data is stored</strong><br>
+    Life OS stores everything in your browser's localStorage — it never leaves your device, is never sent to any server, and is never shared with anyone. The tradeoff is that clearing your browser data will erase it. That's why regular exports matter.
+  </div>`;
+}
+window.nukeData=async()=>{
+  if(!confirm('Are you sure? This will permanently delete ALL your Life OS data. Export first if you want to save it.'))return;
+  if(!confirm('Last chance. Really erase everything?'))return;
+  D.finance={records:[],memories:{first:'',worst:'',smartest:''}};
+  D.relations={people:[]};D.timeline={events:[]};D.checkins={entries:[]};
+  D.identity={aesthetic:'',music:'',hobbies:'',tech:'',inspirations:''};D.letters={list:[]};
+  for(const k of['finance','relations','timeline','checkins','identity','letters'])await save(k);
+  render();toast('All data erased.',true);
+};
+function render(){const pages={home:pgHome,finance:pgFinance,relations:pgRelations,timeline:pgTimeline,checkins:pgCheckins,identity:pgIdentity,letters:pgLetters,settings:pgSettings};$('main').innerHTML=(pages[D.page]||pgHome)();}
+document.querySelectorAll('.sb-item').forEach(el=>{el.addEventListener('click',()=>nav(el.dataset.p));});
+boot();
+</script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516" integrity="sha512-8DS7rgIrAmghBFwoOTujcf6D9rXvH8xm8JQ1Ja01h9QX8EzXldiszufYa4IFfKdLUKTTrnSFXLDkUEOTrZQ8Qg==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+</body>
+</html>
